@@ -1,0 +1,7 @@
+/mnt/s16_1/rt
+/mnt/s16_2/rt
+/mnt/s16_3/rt
+/mnt/s16_4/rt
+/mnt/s18_1/rt
+/mnt/s18_2/rt
+
