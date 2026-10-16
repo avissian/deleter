@@ -4,4 +4,5 @@
 /mnt/s16_4/rt
 /mnt/s18_1/rt
 /mnt/s18_2/rt
+/mnt/merger/rt/
 
