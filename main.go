@@ -180,7 +180,15 @@ func processClient(c chan string, multi *pterm.MultiPrinter, wg *sync.WaitGroup,
 	client := Connect(clientCfg.Login, clientCfg.Pass, clientCfg.Host, clientCfg.Port, clientCfg.SSL)
 
 	s := "all" //"downloading" //"completed"
-	tl, _ := client.Torrents(qbt.TorrentsOptions{Filter: &s})
+	tl, err := client.Torrents(qbt.TorrentsOptions{Filter: &s})
+	if err != nil {
+		log.Panicln(err)
+	}
+	for _, t := range tl {
+		if t.State == "moving" {
+			log.Panicln("Идут переезды раздач (клиент " + clientCfg.Name + "), удаление отменено")
+		}
+	}
 
 	pb1, _ := pterm.DefaultProgressbar.WithTotal(len(tl)).WithWriter((*multi).NewWriter()).Start("Files from: " + clientCfg.Name)
 	for i, t := range tl {
@@ -195,6 +203,10 @@ func processClient(c chan string, multi *pterm.MultiPrinter, wg *sync.WaitGroup,
 		for _, file := range files {
 			//*files = append(*files, t.SavePath+string(os.PathSeparator)+file.Name)
 			c <- t.SavePath + string(os.PathSeparator) + replacer(file.Name)
+			if t.Progress < 1 {
+				// недокачанные лежат на диске с суффиксом .!qB, API отдаёт имя без него
+				c <- t.SavePath + string(os.PathSeparator) + replacer(file.Name) + ".!qB"
+			}
 		}
 	}
 	pb1.Add(pb1.Total - pb1.Current)
